@@ -4,6 +4,41 @@ import 'package:flutter/material.dart';
 
 import 'button_stagger_animation.dart';
 
+class SpinnerButtonController{
+
+  final AnimationController animationController;
+
+  SpinnerButtonController(this.animationController);
+
+  bool _isInProgress=false;
+  bool isDisposed=false;
+
+  bool get isInProgress{
+    return _isInProgress;
+  }
+
+  void set isInProgress(bool isInProgress) {
+    _isInProgress=isInProgress;
+
+    if(isDisposed){
+      return;
+    }
+
+    if(isInProgress){
+      animationController.forward();
+    }else{
+      animationController.reverse(from: animationController.value);
+    }
+
+  }
+
+  void dispose(){
+    isDisposed=true;
+    animationController.dispose();
+  }
+
+}
+
 class SpinnerButton extends StatefulWidget {
   /// The background color of the button.
   final Color color;
@@ -33,7 +68,7 @@ class SpinnerButton extends StatefulWidget {
   ///
   /// This will grant access to its [AnimationController] so
   /// that the animation can be controlled based on the need.
-  final Function(AnimationController? controller) onPressed;
+  final Function(SpinnerButtonController controller) onPressed;
 
   /// The child to display on the button.
   final Widget child;
@@ -62,6 +97,7 @@ class SpinnerButton extends StatefulWidget {
 class _SpinnerButtonState extends State<SpinnerButton>
     with TickerProviderStateMixin {
   late AnimationController _controller;
+  late SpinnerButtonController spinnerButtonController;
 
   @override
   void initState() {
@@ -71,11 +107,12 @@ class _SpinnerButtonState extends State<SpinnerButton>
       duration: widget.animationDuration,
       vsync: this,
     );
+    spinnerButtonController=SpinnerButtonController(_controller);
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    spinnerButtonController.dispose();
     super.dispose();
   }
 
@@ -91,7 +128,11 @@ class _SpinnerButtonState extends State<SpinnerButton>
         progressIndicatorColor: widget.progressIndicatorColor,
         progressIndicatorSize: widget.progressIndicatorSize,
         borderRadius: widget.borderRadius,
-        onPressed: widget.onPressed,
+        onPressed: (controller){
+          if(!spinnerButtonController.isInProgress){
+            widget.onPressed(spinnerButtonController);
+          }
+        },
         elevation: widget.elevation,
         child: widget.child,
       ),

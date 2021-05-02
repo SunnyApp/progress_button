@@ -87,11 +87,14 @@ class ButtonStaggerAnimation extends StatelessWidget {
               elevation: MaterialStateProperty.all(elevation),
               shape: MaterialStateProperty.all(RoundedRectangleBorder(
                 borderRadius: borderRadiusAnimation.value,
-                side: BorderSide(
+                side: borderWidth!=null ?
+                    BorderSide(
                     color: borderColor ?? Color(0xffff5745),
-                    width: borderWidth!),
+                    width: borderWidth!)
+                    : BorderSide.none,
               )),
-              foregroundColor: MaterialStateProperty.all(color),
+              backgroundColor: MaterialStateProperty.all(color),
+
             ),
             child: _buttonChild(),
             onPressed: () {
